@@ -65,6 +65,15 @@ package com.wings.util.display
 			return returnBitmapData;
 		}
 		
+		
+		public static function grayFreeFilter(color:uint , source:BitmapData):BitmapData {
+			source.merge(source , source.rect , new Point() , 254 , 238 , 189 , .9) ;
+			sourceBitmap=new Bitmap(source);
+			//sourceBitmap.filters=[getGrayFilter()];
+			returnBitmapData=new BitmapData(sourceBitmap.width,sourceBitmap.height,true, color);
+			returnBitmapData.draw(sourceBitmap);
+			return returnBitmapData;
+		}
 		/**
 		 * 生成灰度颜色矩阵 
 		 * @return 

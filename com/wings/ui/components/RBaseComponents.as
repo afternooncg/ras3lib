@@ -197,10 +197,8 @@ package com.wings.ui.components
 		 */
 		public function setVisualSize(w:Number, h:Number):void 
 		{
-			_w = w ;
-			_h = h ;
-			invalidate();
-			dispatchEvent(new Event(Event.RESIZE));			
+			this.visibleWidth = w;
+			this.visibleHeight = h;
 		}
 		/**
 		 * 设置xy 

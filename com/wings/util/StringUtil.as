@@ -528,5 +528,44 @@ package com.wings.util
 			}
 		}
 		
+		/**
+		 * 将时间值转换成字符串形式 
+		 * @param value 时间值(单位:秒)
+		 * @param type 1 00:00  2 00:00:00
+		 * @return 
+		 * 
+		 */		
+		public static function convertNumberToTimeString(time : int,type : int = 1) : String
+		{
+			if(time < 0)
+			{
+				if(type == 1)
+					return "00:00";
+				else if(type == 2)
+					return "00:00:00";
+			}
+			var min : int;
+			var sec : int;
+			var minStr : String;
+			var secStr : String;
+			if(type == 2)
+			{
+				var hour : int = time / 3600;
+				min = (time - hour * 3600) / 60;
+				sec = time - hour * 3600 - min * 60;
+				var hourStr : String = (hour < 10) ? ("0" + hour) : hour.toString();
+				minStr = (min < 10) ? ("0" + min) : min.toString();
+				secStr = (sec < 10) ? ("0" + sec) : sec.toString();
+				return hourStr + ":" + minStr + ":" + secStr;
+			}
+			else
+			{
+				min = time / 60;
+				sec = time - min * 60;
+				minStr = (min < 10) ? ("0" + min) : min.toString();
+				secStr = (sec < 10) ? ("0" + sec) : sec.toString();
+				return minStr + ":" + secStr;
+			}
+		}
 	}
 }

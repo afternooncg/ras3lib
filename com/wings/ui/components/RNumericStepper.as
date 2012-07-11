@@ -237,21 +237,18 @@ package com.wings.ui.components
 		
 		override public function drawUI():void
 		{
-			if(stage)
-			{
-				_btnInc.addEventListener(MouseEvent.MOUSE_DOWN, handelOnClick_Inc);
-				_btnInc.width = Math.min(20,_btnInc.width);
-				_btnInc.height = Math.min(11,_btnInc.height);
 				
-				_btnDec.addEventListener(MouseEvent.MOUSE_DOWN, handelOnClick_Dec);
-				_btnDec.width = _btnInc.width
-				_btnDec.height = _btnInc.height;
+//				_btnInc.visibleWidth = Math.min(20,_btnInc.width);
+//				_btnInc.visibleHeight = Math.min(11,_btnInc.height);
 				
-				_txtValue.width = _w - _btnInc.width;
-				_txtValue.height= _h;
-				_btnInc.x = _btnDec.x =_txtValue.width;			
-				_btnDec.y = _btnInc.height;
-			}
+//				_btnDec.width = _btnInc.width
+//				_btnDec.height = _btnInc.height;
+				
+			_txtValue.width = _w - _btnInc.visibleWidth;
+			_txtValue.height= _h;
+			_btnInc.x = _btnDec.x =_txtValue.width;			
+			_btnDec.y = _btnInc.visibleHeight;
+			
 		}
 		
 		
@@ -305,6 +302,8 @@ package com.wings.ui.components
 			this.addChild(_btnInc);
 			this.addChild(_btnDec);
 			
+			_btnInc.addEventListener(MouseEvent.MOUSE_DOWN, handelOnClick_Inc);
+			_btnDec.addEventListener(MouseEvent.MOUSE_DOWN, handelOnClick_Dec);
 			this.addEventListener(Event.ADDED_TO_STAGE,handleAddToStage);
 		}
 		
@@ -424,10 +423,12 @@ package com.wings.ui.components
 			}
 			else if(tmp>_maximum)
 			{
+				_value = _maximum;
 				_txtValue.text = _maximum.toString();
 			}
 			else if(tmp<_minimum)
 			{
+				_value = _minimum;
 				_txtValue.text = _minimum.toString();
 			}
 			 	
