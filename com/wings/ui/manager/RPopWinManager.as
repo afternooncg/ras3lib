@@ -236,9 +236,10 @@ package com.wings.ui.manager
 		{
 			var cui:DisplayObject = ui as DisplayObject;
 			
-			if(cui && cui.parent && cui.parent.contains(cui))
+			if(cui)
 			{
-				cui.parent.removeChild(cui);
+				if(cui.parent)
+					cui.parent.removeChild(cui);
 				
 				if(ui.isCanDrag)
 				{

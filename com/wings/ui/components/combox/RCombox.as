@@ -9,6 +9,7 @@ package com.wings.ui.components.combox
 	import com.wings.ui.components.RBaseList;
 	import com.wings.ui.components.RComponent;
 	import com.wings.ui.components.RTooltip;
+	import com.wings.ui.components.RVScrollPanle;
 	import com.wings.ui.components.events.RCollectionChangeEvent;
 	import com.wings.ui.manager.RToolTipManager;
 	import com.wings.ui.manager.RUIManager;
@@ -49,7 +50,7 @@ package com.wings.ui.components.combox
 		/**
 		 * 
 		 * @param parent 父容器
-		 * @param params	{x,y,w,h,lineheight,isMenuOnTop,paddingLeft}参数 isMenuOnTop:true/false是否强行菜单显示在头部 paddingLeft>0则指定文本固定位置，否则默认居中,isHtmlText是否以htmltxt模式渲染按钮文本,一旦设定，不可更改
+		 * @param params	{x,y,w,h,lineheight,isMenuOnTop,paddingLeft}参数 isMenuOnTop:true/false是否强行菜单显示在头部 paddingLeft>0则指定文本固定位置，否则默认居中,isHtmlText是否以htmltxt模式渲染按钮文本,一旦设定，不可更改,listh:显示高度
 		 * @param defaultLable	默认文本
 		 * @param items	数据源[{label:*,data:*,fontcolor:uint},{label:*,data:*,fontcolor:uint},...]
 		 * @param createComboxItemFun 渲染回调，这种模式下可以自定义生成item对象 fu():IRListItem  若该参数为null,则item生成参数控制在addChildren/set dataProvitor 两处
@@ -74,11 +75,14 @@ package com.wings.ui.components.combox
 		private var _header:RHeader;		//默认显示
 		private var _thisCt:DisplayObjectContainer;	//自身容器，由于在出现/关闭下拉列表时会被_parent,add/remove.为避免_parent override了addChild带来的问题。 
 		private var _itemCt:DisplayObjectContainer;	//菜单容器
+		
 		private var _list:IRList;
 		private var _items:Array;				//原始数据源
 		private var _itemHeight:int = 23;		//菜单项高		
 		private var _listBg:DisplayObject;
 		
+		private var _listh:int = 0;
+		private var _scrollCt:RVScrollPanle;			//滚动容器
 		
 
 		//默认header显示
@@ -218,6 +222,7 @@ package com.wings.ui.components.combox
 				_headerBtnProxy.destroy();
 				_headerBtnProxy  = null;
 			}
+						
 			while(_itemCt.numChildren>0)
 			{
 				var item:DisplayObject = _itemCt.removeChildAt(0);
@@ -244,6 +249,11 @@ package com.wings.ui.components.combox
 			}
 			_createComboxItemFun = null;
 			
+			if(_scrollCt)
+			{
+				_scrollCt.destroy();
+				_scrollCt=null;
+			}
 			super.destroy();
 		}
 		//--------------------------------------------------------------------------
@@ -277,6 +287,8 @@ package com.wings.ui.components.combox
 				this._itemHeight = int(_params["lineheight"]);
 			if(_params.isMenuOnTop) 
 				this._isMenuOnTop = Boolean(_params["isMenuOnTop"]);
+			if(_params.listh) 
+				this._listh = int(_params["listh"]);
 			
 			if(_w==0)
 				_w = 120;
@@ -293,8 +305,16 @@ package com.wings.ui.components.combox
 			this.addChild(_thisCt);
 			
 			_itemCt = new Sprite();
-			_itemCt.mouseEnabled = false;			
-			_itemCt.y = _headerBtnProxyDisp==null ? _h : 0;
+			_itemCt.mouseEnabled = false;
+			
+			if(_listh>0)
+			{
+				_scrollCt = new RVScrollPanle(_itemCt,null,{w:_w,h:_listh,y:(_headerBtnProxyDisp==null ? _h : 0)},true);				
+			}
+			else
+			{						
+				_itemCt.y = _headerBtnProxyDisp==null ? _h : 0;
+			}
 			var isHtmlText_v:Boolean = false;
 			if(_params && _params.isHtmlText) 
 				isHtmlText_v = Boolean(_params["isHtmlText"]);
@@ -357,20 +377,35 @@ package com.wings.ui.components.combox
 			RUIManager.stage.addChild(_thisCt);			
 			_thisCt.x = p.x;
 			_thisCt.y = p.y;
-			_thisCt.addChild(_itemCt);
+			if(_scrollCt)
+				_thisCt.addChild(_scrollCt);
+			else
+				_thisCt.addChild(_itemCt);
 			
 			DisplayObjectKit.moveTopZ(_thisCt);
 			
 			
 			//如有被隐藏情况,菜单飘向顶部
-			if((!DisplayObjectKit.isVisibleOnScreen(_thisCt) && (_thisCt.y+_thisCt.height)>_thisCt.stage.stageHeight) || _isMenuOnTop)
-			{				
-				_itemCt.y = -_itemCt.height;  
+			if(!_scrollCt)
+			{
+				if((!DisplayObjectKit.isVisibleOnScreen(_thisCt) && (_thisCt.y+_thisCt.height)>_thisCt.stage.stageHeight) || _isMenuOnTop)
+					_itemCt.y = -_itemCt.height;  
 			}
+			else
+			{
+				if((!DisplayObjectKit.isVisibleOnScreen(_scrollCt) && (_thisCt.y+_scrollCt.visibleHeight)>_thisCt.stage.stageHeight) || _isMenuOnTop)				
+					_itemCt.y = -_scrollCt.visibleHeight				
+			}
+			
+			
 						
 			_thisCt.addChildAt(_listBg,0);			
 			_listBg.width = _w;
-			_listBg.height = _items.length*_itemHeight; 
+			if(_scrollCt)
+				_listBg.height = _listh;
+			else
+				_listBg.height = _items.length*_itemHeight;
+			
 			_listBg.y = _itemCt.y;
 			
 			
@@ -410,7 +445,10 @@ package com.wings.ui.components.combox
 		private function closeMenu():void
 		{
 			_isOpen = false;			
-			_thisCt.removeChild(_itemCt);
+			if(_scrollCt)
+				_thisCt.removeChild(_scrollCt);
+			else	
+				_thisCt.removeChild(_itemCt);
 			_thisCt.removeChild(_listBg);
 			if(_headerBtnProxyDisp==null)
 				_itemCt.y = _header.visibleHeight;

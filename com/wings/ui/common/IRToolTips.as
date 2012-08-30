@@ -40,7 +40,7 @@ package com.wings.ui.common
 		 *  
 		 * 每次over事件时更新,用于tooltip是单例共享情况,如果是非单例情况,不必实现
 		 */		
-		function updateEveryShow():void		
+		function set updateEveryShow(fn:Function):void		
 			
 		
 	}

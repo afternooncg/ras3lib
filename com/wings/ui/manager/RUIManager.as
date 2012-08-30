@@ -283,7 +283,8 @@ package com.wings.ui.manager
 				if(vt[i]!=null && _vtUIs.indexOf(vt[i])>=0)
 					vt[i].onStageResize(w,h);				
 			}
-				
+			
+			vt.length = 0;
 		}
 		
 		private function handleEnterFrame(event:Event):void
@@ -297,7 +298,7 @@ package com.wings.ui.manager
 					vt[i](event);				
 			}
 			
-			
+			vt.length = 0;
 			
 		}
 	}

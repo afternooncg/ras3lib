@@ -157,6 +157,8 @@ package com.wings.ui.components
 		
 		override public function destroy():void
 		{
+			this.removeEventListener(Event.ENTER_FRAME,handleOpenEffect);
+			this.removeEventListener(Event.ENTER_FRAME,handleCloseEffect);
 			super.destroy();
 			_isDestroyed = true;
 		}

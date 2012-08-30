@@ -48,7 +48,7 @@ package com.wings.ui.components
 				this.x = int(_params["x"]);
 			if(_params.y)
 				this.y = int(_params["y"]);
-			if(_params.spacing) 
+			if(_params.hasOwnProperty("spacing")) 
 				_spacing = int(_params["spacing"]);
 		}
 		

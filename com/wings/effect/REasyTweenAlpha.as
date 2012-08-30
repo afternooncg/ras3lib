@@ -87,7 +87,7 @@ package com.wings.effect
 		{
 			var v:Number = (_end - _disp.alpha) * _mulSpeed;			
 			_disp.alpha += v;
-			if(Math.abs(_disp.alpha-_end)<0.01 || (v>0 && _disp.alpha>=_end) || (v<0 && _disp.alpha<=_end))
+			if(v<=0.01 || Math.abs(_disp.alpha-_end)<0.01 || (v>0 && _disp.alpha>=_end) || (v<0 && _disp.alpha<=_end))
 			{
 				_stage.removeEventListener(Event.ENTER_FRAME,handleEnterFrame);
 				if(_completeFun!=null)

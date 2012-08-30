@@ -31,7 +31,7 @@ package com.wings.ui.components
 		protected var _enabled:Boolean = true;				//鼠标感应失效,并呈现灰色外观
 		protected var _isAutoGrow:Boolean = false;
 		private var _isUpdateTooltipRealTime:Boolean=false;		//是否实时更新悬停
-		
+		private var _fnUpdateTip:Function;						//实时更新悬停的代理操作
 		
 
 		/**
@@ -82,6 +82,8 @@ package com.wings.ui.components
 		 */		
 		public function get toolTip():Object
 		{
+			if(_fnUpdateTip!=null)
+				_fnUpdateTip();
 			return _toolTip;
 		}
 		public function set toolTip(tipObj:Object):void
@@ -196,13 +198,15 @@ package com.wings.ui.components
 		{
 			super.destroy();
 			RToolTipManager.getInstance().unregister(this);
-			
+									
 			this.removeEventListener(MouseEvent.MOUSE_DOWN,handleFirstClick);			
 			this.removeEventListener(MouseEvent.MOUSE_UP,handleFirstClick);
 			this.removeEventListener(MouseEvent.CLICK,handleFirstClick);
 			this.removeEventListener(MouseEvent.DOUBLE_CLICK,handleFirstClick);
 			this.removeEventListener(MouseEvent.MOUSE_WHEEL,handleFirstClick);
 		
+			if(_fnUpdateTip!=null)
+				_fnUpdateTip = null;
 		}
 		
 		/**
@@ -221,13 +225,14 @@ package com.wings.ui.components
 		}
 		
 		
+		
 		/**
 		 *  
 		 * 每次over事件时更新,用于tooltip是单例共享情况,如果是非单例情况,不必实现
 		 */		
-		public function updateEveryShow():void
+		public function set updateEveryShow(fn:Function):void
 		{
-			
+			_fnUpdateTip = fn;
 		}
 		
 		

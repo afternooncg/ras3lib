@@ -307,8 +307,8 @@ package com.wings.ui.components
 		 * 
 		 */		
 		protected function invalidate():void
-		{			
-			RUIManager.getInstance().registEnterFrameListener(handleCallDrawUI);
+		{	
+			RUIManager.getInstance().registEnterFrameListener(handleCallDrawUI);			
 		}
 		
 		//--------------------------------------------------------------------------
@@ -329,7 +329,7 @@ package com.wings.ui.components
 		 * 
 		 */		
 		protected function handleCallDrawUI(event:Event=null):void
-		{
+		{	
 			RUIManager.getInstance().unRegistEnterFrameListener(handleCallDrawUI);
 			drawUI();
 		}	

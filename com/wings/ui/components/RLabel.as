@@ -23,6 +23,7 @@ package com.wings.ui.components
 		public function RLabel(text:String="",parent:DisplayObjectContainer=null,params:Object=null)
 		{				
 			_text = text;
+			_params = params;
 			if(parent)
 			{	
 				if(_params && _params.hasOwnProperty("childIndex"))
@@ -201,7 +202,7 @@ package com.wings.ui.components
 		 *  
 		 * 每次over事件时更新,用于tooltip是单例共享情况,如果是非单例情况,不必实现
 		 */		
-		public function updateEveryShow():void
+		public function set updateEveryShow(fn:Function):void
 		{
 			
 		}

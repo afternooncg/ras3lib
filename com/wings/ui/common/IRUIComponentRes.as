@@ -58,6 +58,12 @@ package com.wings.ui.common
 		 */		
 		function get ToolTipSkin():DisplayObject;
 		
+		/**
+		 * 新手引导框皮肤 
+		 * @return 
+		 * 
+		 */		
+		function get GuideBgSkin():DisplayObject;
 		
 		/**
 		 * 数值调整增加按钮 皮肤1 

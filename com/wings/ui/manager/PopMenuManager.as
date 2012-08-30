@@ -13,9 +13,9 @@ package com.wings.ui.manager
 	 */	
 	public class PopMenuManager implements IDestroy
 	{
-		private var _pop:DisplayObject;
-		private var _callbackOpenFn:Function;	//打开执行
-		private var _clickObj:DisplayObject;  //点击排除点
+		protected var _pop:DisplayObject;
+		protected var _callbackOpenFn:Function;	//打开执行
+		protected var _clickObj:DisplayObject;  //点击排除点
 		
 		public function PopMenuManager(pop:DisplayObject,clickObj:DisplayObject,callbackOpenFn:Function=null)
 		{
