@@ -326,6 +326,11 @@ package com.wings.ui.components
 			if(_params.x) this.x = int(_params["x"]);
 			if(_params.y) this.y = int(_params["y"]);
 		}
+		
+		override protected function invalidate():void
+		{
+			drawUI();
+		}
 		//--------------------------------------------------------------------------
 		//
 		//  Methods

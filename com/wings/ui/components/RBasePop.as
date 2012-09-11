@@ -4,6 +4,7 @@ package com.wings.ui.components
 	import com.wings.ui.common.IStageResize;
 	import com.wings.ui.components.constdefine.PopOpenType;
 	import com.wings.ui.manager.RPopWinManager;
+	import com.wings.ui.manager.RUIManager;
 	
 	import flash.display.DisplayObject;
 	import flash.display.DisplayObjectContainer;
@@ -71,14 +72,16 @@ package com.wings.ui.components
 		 */		
 		public function open(enumType:String= "PopOpenType_mask"):void    
 		{	
-			_ispopUp = true;
-			this.removeEventListener(Event.ENTER_FRAME,handleCloseEffect);
-			_popOpenType = enumType;
-			executeOpen(_popOpenType);
-			if(this.hasEventListener(Event.ENTER_FRAME) && this.alpha!=1)
+			if(_ispopUp)
 				return;
+			_ispopUp = true;
+			//this.removeEventListener(Event.ENTER_FRAME,handleCloseEffect);
+			RUIManager.getInstance().unRegistEnterFrameListener(handleCloseEffect);
+			_popOpenType = enumType;
+			executeOpen(_popOpenType);			
 			this.alpha = 0.5;
-			this.addEventListener(Event.ENTER_FRAME,handleOpenEffect);
+			//this.addEventListener(Event.ENTER_FRAME,handleOpenEffect);
+			RUIManager.getInstance().registEnterFrameListener(handleOpenEffect);
 		}		
 		
 		/**
@@ -88,15 +91,15 @@ package com.wings.ui.components
 		 */		
 		public function close(isRemove:Boolean=false):void
 		{ 
-			if(_isDestroyed)
+			if(_isDestroyed || !_ispopUp)
 				return;
 			_isAutoDestroyOnClose = isRemove;
 			_ispopUp = false;
-			this.removeEventListener(Event.ENTER_FRAME,handleOpenEffect);
-			if(this.hasEventListener(Event.ENTER_FRAME) && this.alpha!=1)
-				return;
+			//this.removeEventListener(Event.ENTER_FRAME,handleOpenEffect);
+			RUIManager.getInstance().unRegistEnterFrameListener(handleOpenEffect);
 			this.alpha = 0.5;
-			this.addEventListener(Event.ENTER_FRAME,handleCloseEffect);
+			//this.addEventListener(Event.ENTER_FRAME,handleCloseEffect);
+			RUIManager.getInstance().registEnterFrameListener(handleCloseEffect);
 		}			
 		
 		/**
@@ -157,8 +160,13 @@ package com.wings.ui.components
 		
 		override public function destroy():void
 		{
-			this.removeEventListener(Event.ENTER_FRAME,handleOpenEffect);
-			this.removeEventListener(Event.ENTER_FRAME,handleCloseEffect);
+	//		this.removeEventListener(Event.ENTER_FRAME,handleOpenEffect);
+		//	this.removeEventListener(Event.ENTER_FRAME,handleCloseEffect);
+			
+			RUIManager.getInstance().unRegistEnterFrameListener(handleOpenEffect);
+			RUIManager.getInstance().unRegistEnterFrameListener(handleCloseEffect);
+			//RUIManager.getInstance().registEnterFrameListener();
+			
 			super.destroy();
 			_isDestroyed = true;
 		}
@@ -176,7 +184,8 @@ package com.wings.ui.components
 			if(this.alpha>=1) 
 			{				
 				this.alpha = 1;					
-				this.removeEventListener(Event.ENTER_FRAME,handleOpenEffect);				
+				//this.removeEventListener(Event.ENTER_FRAME,handleOpenEffect);		
+				RUIManager.getInstance().unRegistEnterFrameListener(handleOpenEffect);
 				dispatchEvent(new Event(Event.OPEN));
 			}
 		}
@@ -194,7 +203,8 @@ package com.wings.ui.components
 			if(this.alpha<=0) 
 			{				
 				//this.isPopUp = true;
-				this.removeEventListener(Event.ENTER_FRAME,handleCloseEffect);
+				//this.removeEventListener(Event.ENTER_FRAME,handleCloseEffect);
+				RUIManager.getInstance().unRegistEnterFrameListener(handleCloseEffect);
 				executeClose(_isAutoDestroyOnClose);
 				this.alpha = 1;
 				

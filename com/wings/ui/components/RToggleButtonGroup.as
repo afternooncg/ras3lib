@@ -69,7 +69,16 @@ package com.wings.ui.components
 			return _currentIndex;
 		}		
 		public function set selectedIndex(id:int):void
-		{			
+		{	
+			if(id==-1)
+			{
+				_currentIndex=-1;
+				for (var j:int = 0; j < _aryBtn.length; j++) 
+					_aryBtn[i].isSelected=false;				
+				return;
+			}
+			
+			
 			if(id==_currentIndex)
 			{
 				if(_currentIndex>0 && _currentIndex<_aryBtn.length)

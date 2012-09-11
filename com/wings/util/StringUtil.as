@@ -466,10 +466,15 @@ package com.wings.util
 			
 			var str1:String="";
 			var i:int=0;
-			while(getDobuleByteStrLen(str1)<=bytelen)
+			while(getDobuleByteStrLen(str1)<bytelen)
 			{				
-				str1+= str.substr(i,1);
-				i++;
+				if(getDobuleByteStrLen(str1+str.substr(i,1))<=bytelen)
+				{
+					str1+= str.substr(i,1);
+					i++;
+				}
+				else
+					break;
 			}
 			
 			return str1;

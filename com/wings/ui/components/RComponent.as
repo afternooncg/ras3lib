@@ -31,7 +31,7 @@ package com.wings.ui.components
 		protected var _enabled:Boolean = true;				//鼠标感应失效,并呈现灰色外观
 		protected var _isAutoGrow:Boolean = false;
 		private var _isUpdateTooltipRealTime:Boolean=false;		//是否实时更新悬停
-		private var _fnUpdateTip:Function;						//实时更新悬停的代理操作
+		protected var _fnUpdateTip:Function;						//实时更新悬停的代理操作
 		
 
 		/**
@@ -81,9 +81,7 @@ package com.wings.ui.components
 		 * 
 		 */		
 		public function get toolTip():Object
-		{
-			if(_fnUpdateTip!=null)
-				_fnUpdateTip();
+		{			
 			return _toolTip;
 		}
 		public function set toolTip(tipObj:Object):void
@@ -166,6 +164,8 @@ package com.wings.ui.components
 		 */		
 		public function set gray(value:Boolean):void
 		{
+			if(_isGray==value)
+				return;
 			_isGray = value;
 			this.filters = _isGray ? [BitmapFiltersKit.getGrayFilter()] : null ;
 			if(value)
@@ -176,7 +176,7 @@ package com.wings.ui.components
 				this.addEventListener(MouseEvent.MOUSE_UP,handleFirstClick,false,10000);
 				this.addEventListener(MouseEvent.CLICK,handleFirstClick,false,10000);
 				this.addEventListener(MouseEvent.DOUBLE_CLICK,handleFirstClick,false,10000);
-				this.addEventListener(MouseEvent.MOUSE_WHEEL,handleFirstClick,false,10000);
+//				this.addEventListener(MouseEvent.MOUSE_WHEEL,handleFirstClick,false,10000);
 			}
 			else
 			{
@@ -185,7 +185,7 @@ package com.wings.ui.components
 				this.removeEventListener(MouseEvent.MOUSE_UP,handleFirstClick);
 				this.removeEventListener(MouseEvent.CLICK,handleFirstClick);
 				this.removeEventListener(MouseEvent.DOUBLE_CLICK,handleFirstClick);
-				this.removeEventListener(MouseEvent.MOUSE_WHEEL,handleFirstClick);
+//				this.removeEventListener(MouseEvent.MOUSE_WHEEL,handleFirstClick);
 			}
 		}
 		
@@ -230,9 +230,14 @@ package com.wings.ui.components
 		 *  
 		 * 每次over事件时更新,用于tooltip是单例共享情况,如果是非单例情况,不必实现
 		 */		
-		public function set updateEveryShow(fn:Function):void
+		public function set onShowTipCallBackFn(fn:Function):void
 		{
 			_fnUpdateTip = fn;
+		}			
+		public function updateTipOnShow():void
+		{
+			if(_fnUpdateTip!=null)
+				_fnUpdateTip();
 		}
 		
 		

@@ -162,6 +162,19 @@ package com.wings.ui.components
 		}
 		
 		/**
+		 * 设定指定每次滚动行高 ,推荐用这个方法更直观  比单独设定.countBodyHeight, .scrollLineHeight 
+		 * @param bodyHeight
+		 * @param scrollLineHeight
+		 * 
+		 */		
+		public function setScrollCountParam(bodyHeight:Number,scrollLineHeight:Number):void
+		{
+			_scrollBar.countBodyHeight = bodyHeight;
+			_scrollBar.scrollLineHeight = scrollLineHeight;
+		}
+			
+		
+		/**
 		 * 内部用计算用高度 
 		 * @return 
 		 * 
@@ -188,7 +201,7 @@ package com.wings.ui.components
 		}
 		
 		/**
-		 * 单词滚动高度 
+		 * 单词滚动高度
 		 * @param value
 		 * 
 		 */		

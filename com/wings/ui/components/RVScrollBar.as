@@ -159,12 +159,16 @@ package com.wings.ui.components
 		{
 			if(_isForceStep)
 			{
-				var segmentation:int = 1/_scrollLineHeight;				
-				if(value>=0 && value<=segmentation)
-				{
-					_currentLine = value;
-					invalidate();
-				}
+				//var tick:Number = _scrollLineHeight* (this.countHeight-_h); //实际单行高度		
+				var total:int = 1/_scrollLineHeight;
+				if(value<0)
+					value=0;
+				if(value>total)
+					value=total;
+				
+				_position = value/total;
+				_currentLine = value;
+				invalidate();
 			}
 			
 		}
@@ -247,7 +251,7 @@ package com.wings.ui.components
 		 */		
 		public function set scrollLineHeight(value:Number):void
 		{
-			if(_scrollContent) _scrollLineHeight = value/this.countHeight;
+			if(_scrollContent) _scrollLineHeight = value/(this.countHeight-_h);
 			_isForceStep = true;
 		}
 		public function get scrollLineHeight():Number
@@ -420,13 +424,16 @@ package com.wings.ui.components
 				var poleStartHeight:Number = Math.floor(_btnDown.y - _btnUp.y - _btnUp.height);
 				//初始化滑块的高度
 				if(!_isForceHandlerSize)
+				{
 					_draghandle.height = this.visibleHeight * poleStartHeight / this.countHeight;
+					_draghandle.y = (_bgBar.height - _draghandle.height) * _position + _btnUp.height;
+				}
 			}
 		}		
 		
 		private function startMovingWithStep():void
 		{			
-			var tmpy:Number = - countSegmentation(_position);			
+			var tmpy:Number = countSegmentation(_position);			
 			fixLastPosi(tmpy);
 			if (!hasEventListener(Event.ENTER_FRAME))
 			{
@@ -690,14 +697,15 @@ package com.wings.ui.components
 		}
 		
 		/**
-		 * 做百分比处理,计算新值
+		 * 用于处理当指定了滚动高度后，滚动到位置为行中间的情况
 		 * 
 		 */		
 		protected function countSegmentation(num:Number):Number
 		{			
-			//取精确值				
-			var tick:Number = _scrollLineHeight* this.countHeight; //实际单行高度(this.countHeight-_h)/_segmentation;				
-			var checkvar:Number = (this.countHeight-_h)*num/tick;  //滚动距离百分比
+			//取精确值
+			var mov:Number = -(this.countHeight - _h) * _position;			
+			var tick:Number = _scrollLineHeight* (this.countHeight-_h); //实际单行高度			
+			var checkvar:Number = mov/tick;//
 			var begin:int = int(Math.floor(checkvar));
 			var end:int = int(Math.ceil(checkvar));
 			

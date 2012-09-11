@@ -71,7 +71,10 @@ package com.wings.util.display
 				return false;
 			var screen:Rectangle = new Rectangle(0,0,displayObj.stage.stageWidth,displayObj.stage.stageHeight)
 //				trace("isVisibleOnScreen",displayObj.getBounds(displayObj.stage));
-			return screen.containsRect(displayObj.getBounds(displayObj.stage));
+				if(!displayObj.mask)
+					return screen.containsRect(displayObj.getBounds(displayObj.stage));
+				else
+					return screen.containsRect(displayObj.mask.getBounds(displayObj.stage));
 		}
 		
 		
@@ -97,10 +100,11 @@ package com.wings.util.display
 		 * 显示对象转位图
 		 * @param v		
 		 * @param isTransparent 是否保持透明区域		 
+		 * @param bmp 是否传入容器bmp
 		 * @return 
 		 * 
 		 */				
-		public static function displayObjToBitmap(v:DisplayObject,isTransparent:Boolean=false):Bitmap
+		public static function displayObjToBitmap(v:DisplayObject,isTransparent:Boolean=false,bmp:Bitmap=null):Bitmap
 		{
 			if(v==null) return null;			
 			var bmpData:BitmapData;
@@ -110,7 +114,13 @@ package com.wings.util.display
 				bmpData = new BitmapData(v.width,v.height);
 				
 			bmpData.draw(v);
-			return new Bitmap(bmpData);
+			if(!bmp)
+				return new Bitmap(bmpData);
+			else
+			{
+				bmp.bitmapData = bmpData;
+				return bmp;
+			}
 		}
 		
 		/**

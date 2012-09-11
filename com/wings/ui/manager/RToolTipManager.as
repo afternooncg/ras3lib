@@ -149,6 +149,7 @@ package com.wings.ui.manager
 				if(tpObj.toolTip==null || tpObj.toolTip.toString()=="")
 					return;
 				
+				(_currentTarget as IRToolTips).updateTipOnShow();					
 				if(!checkIsRichToolTip(tpObj))
 				{//优先显示文本悬停
 					_tip.text = (_currentTarget as IRToolTips).toolTip.toString();

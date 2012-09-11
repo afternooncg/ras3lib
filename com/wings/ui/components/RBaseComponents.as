@@ -17,7 +17,7 @@ package com.wings.ui.components
 	 * 组件基类
 	 * 本类提供自定义组件的的1个底层工作方法顺序模板,及UI重绘机制,这个类之后主要产生2个分支.一个基于容器类的(不带悬停感应)，1个是基于特定功能控件类（特征） 容器类w/h由内部填充对象来决定	  
 	 * 获取可视长宽请用 visibleWidth/visibleHeight,请维护正确的_w _h值,该值将反应bg的长宽属性
-	 * 由于采用异步调用drawUI的模式，因此在设置了涉及_w_h变化的属性,_w_h不会马上改变，而会等到下帧，如果需要马上或得，请在设置属性后,调用drawUI;
+	 * 由于采用异步调用drawUI的模式，因此在设置了涉及_w_h变化的属性,w h不会马上改变，而会等到下帧，如果需要马上或得，请在设置属性后,调用updateUIAtOnce;
 	 * 在使用中发现,自动计算_w_h的模式会带来很多麻烦.建议非特殊组件应都给予默认的初始值
 	 * 
 	 * @author hh
@@ -73,7 +73,8 @@ package com.wings.ui.components
 			_uniqueid = uint((new Date()).valueOf()*Math.random());			
 			initProps();
 			addChildren();
-			invalidate();
+			if(this.numChildren>0)
+				invalidate();
 		}
 		
 		
@@ -231,13 +232,23 @@ package com.wings.ui.components
 		
 		
 		/**
+		 * 立刻执行drawUI动作，更新外观 
+		 * 
+		 */		
+		public function updateUIAtOnce():void
+		{
+			handleCallDrawUI(null);
+		}
+		
+		
+		/**
 		 * 默认将自动找出所有的RBaseComponents的子对象并执行destroy()
 		 * Completely destroys the instance and frees all objects for the garbage
 		 * collector by setting their references to null.
 		 */
 		public function destroy():void
-		{									
-			RUIManager.stage.removeEventListener(Event.ENTER_FRAME, handleCallDrawUI);
+		{	
+			RUIManager.getInstance().unRegistEnterFrameListener(handleCallDrawUI);
 			var obj:IDestroy; 
 			while(this.numChildren>0)
 			{

@@ -19,7 +19,12 @@ package com.wings.ui.manager
 	 * 
 	 */	
 	public class RUIManager extends EventDispatcher
-	{
+	{		
+		/**
+		* 批量EnterFrame事件回调 
+		*/
+		public static const RUI_ENTER_FRAME:String = "rui_enter_frame";
+		
 		private static var _instance:RUIManager;
 		private static var _stage:Stage;
 		private static var _fullScreenMode:int=0;	
@@ -44,6 +49,8 @@ package com.wings.ui.manager
 		private var _mouseCt:DisplayObjectContainer;
 		
 		private var _newbieGuideCt : DisplayObjectContainer;
+		
+		private var _callBack:RUICallBackManager;//回调管理
 				
 		static private var _maxW:Number;
 		static private var _maxH:Number; 
@@ -86,6 +93,8 @@ package com.wings.ui.manager
 			{
 				_stage.addEventListener(Event.RESIZE,handleOnResize);
 			}
+			
+			_callBack = new RUICallBackManager();
 		}
 		
 
@@ -209,6 +218,8 @@ package com.wings.ui.manager
 		 */		
 		public function registStageResizeUI(disp:IStageResize):void
 		{
+			_callBack.registStageResizeUI(disp);
+			return;
 			if(disp==null)
 				return;
 			if(_vtUIs.indexOf(disp)<0)
@@ -222,6 +233,8 @@ package com.wings.ui.manager
 		 */		
 		public function unRegistStageResizeUI(disp:IStageResize):void
 		{
+			_callBack.unRegistStageResizeUI(disp);
+			return;
 			if(disp==null)
 				return;
 			
@@ -236,8 +249,11 @@ package com.wings.ui.manager
 		 */		
 		public function registEnterFrameListener(fn:Function):void
 		{
+			_callBack.registEnterFrameListener(fn);
+			return;
 			if(fn==null)
 				return;			
+			
 			if(_vtEnterFrame.indexOf(fn)<0)
 			{
 				_vtEnterFrame.push(fn);
@@ -246,6 +262,8 @@ package com.wings.ui.manager
 		}
 		public function unRegistEnterFrameListener(fn:Function):void
 		{
+			_callBack.unRegistEnterFrameListener(fn);
+			return;
 			if(fn==null)
 				return;
 			if(_vtEnterFrame.indexOf(fn)>=0)
@@ -262,6 +280,8 @@ package com.wings.ui.manager
 		 */				
 		private function handleOnResize(event:Event):void
 		{
+			_callBack.onCallBackStageSize(Event.RESIZE,event);
+			return;
 			var w:Number = 0;
 			var h:Number = 0;	
 						
@@ -276,7 +296,7 @@ package com.wings.ui.manager
 				h = _stage.fullScreenHeight;
 			}
 			
-			var vt:Vector.<IStageResize> = _vtUIs.slice();
+			var vt:Vector.<IStageResize> =  (new Vector.<IStageResize>()).concat(_vtUIs);
 			var len:int = vt.length;
 			for (var i:int = 0; i <len; i++) 
 			{
@@ -288,20 +308,164 @@ package com.wings.ui.manager
 		}
 		
 		private function handleEnterFrame(event:Event):void
-		{
-			
-			var vt:Vector.<Function> = _vtEnterFrame.slice();
+		{			
+			var vt:Vector.<Function> = new Vector.<Function>().concat(_vtEnterFrame);
 			var len:int = vt.length;
 			for (var i:int = 0; i <len; i++) 
 			{
 				if(vt[i]!=null && _vtEnterFrame.indexOf(vt[i])>=0)
 					vt[i](event);				
-			}
-			
+			}			
 			vt.length = 0;
-			
 		}
 	}
 }
+import com.wings.common.RCallBackDispatcher;
+import com.wings.ui.common.IStageResize;
+import com.wings.ui.manager.RUIManager;
+
+import flash.display.Stage;
+import flash.display.StageDisplayState;
+import flash.events.Event;
 
 class ForceClass{}
+
+class RUICallBackManager extends RCallBackDispatcher
+{
+	private var _stage:Stage  
+	public function RUICallBackManager()
+	{
+		_stage = RUIManager.stage;
+	}
+	
+	/**
+	 * 回调 
+	 * @param type
+	 * @param param
+	 * 
+	 */		
+	public function onCallBackStageSize(type:String,param:*):void
+	{
+		var w:Number = 0;
+		var h:Number = 0;	
+		
+		if(_stage.displayState == StageDisplayState.NORMAL)
+		{
+			w = _stage.stageWidth;
+			h = _stage.stageHeight;
+		}
+		else
+		{
+			w = _stage.fullScreenWidth
+			h = _stage.fullScreenHeight;
+		}
+		
+		
+		_isExecuteing = true;
+		if(_dict.hasOwnProperty(type))
+		{
+			var vt:Vector.<Function> = _dict[type] as Vector.<Function>;
+			for (var i:int = 0; i < vt.length; i++)
+			{
+				if(_aryDel.length==0 || _aryDel.indexOf(type+"&&"+i.toString())==-1)						
+					vt[i](w,h);
+			}
+			
+			var tmp:Array;				
+			while(_aryDel.length>0)				 
+			{
+				tmp = _aryDel.pop().split("&&");
+				if(_dict.hasOwnProperty(tmp[0]))
+				{
+					vt = _dict[tmp[0]] as Vector.<Function>;
+					if(vt.length>int(tmp[1]))
+						vt.splice(int(tmp[1]),1);
+					if(vt.length==0)
+						delete _dict[type];	
+				}
+			}
+		}
+		_isExecuteing = false;		
+	}
+	
+	/**
+	 * 注册要侦听Enterframe事件的对象,统一管理,fn无参数
+	 * @param fn
+	 * 
+	 */		
+	public function registEnterFrameListener(fn:Function):void
+	{
+		if(fn==null)
+			return;			
+		this.addEventListener(Event.ENTER_FRAME,fn);
+		if(_dict.hasOwnProperty(Event.ENTER_FRAME))
+			_stage.addEventListener(Event.ENTER_FRAME,handleEnterFrame);				
+	}
+	public function unRegistEnterFrameListener(fn:Function):void
+	{
+		if(fn==null)
+			return;
+		
+		this.removeEventListener(Event.ENTER_FRAME,fn);
+		if(!_dict.hasOwnProperty(Event.ENTER_FRAME))
+			_stage.removeEventListener(Event.ENTER_FRAME,handleEnterFrame);			
+	}
+	
+	/**
+	 * 注册要侦听stageReize事件的对象,统一管理
+	 * @param disp
+	 * 
+	 */		
+	public function registStageResizeUI(disp:IStageResize):void
+	{
+		if(disp==null)
+			return;
+		
+		if(!this.hasEventListener(Event.RESIZE,disp.onStageResize))
+		{
+			this.addEventListener(Event.RESIZE,disp.onStageResize);
+		}
+	}
+	
+	/**
+	 * 去除要侦听stageReize事件的对象,通常应在该对象被destory时调用
+	 * @param disp
+	 * 
+	 */		
+	public function unRegistStageResizeUI(disp:IStageResize):void
+	{
+		if(disp==null)
+			return;		
+		this.removeEventListener(Event.RESIZE,disp.onStageResize);			
+	}
+	
+		
+	private function handleEnterFrame(event:Event):void
+	{			
+		onCallBack(Event.ENTER_FRAME,event);
+		if(!_dict.hasOwnProperty(Event.ENTER_FRAME))
+			_stage.removeEventListener(Event.ENTER_FRAME,handleEnterFrame);	
+	}
+	
+	/**
+	 * 场景变换 
+	 * @param event
+	 * 
+	 */				
+	private function handleOnResize(event:Event):void
+	{		
+		onCallBackStageSize(Event.RESIZE,event);
+		//var vt:Vector.<IStageResize> =  (new Vector.<IStageResize>()).concat(_vtUIs);
+		//var len:int = vt.length;
+//		for (var i:int = 0; i <len; i++) 
+//		{
+//			if(vt[i]!=null && _vtUIs.indexOf(vt[i])>=0)
+//				vt[i].onStageResize(w,h);				
+//		}
+		
+		//vt.length = 0;
+	}
+	
+	
+	
+}

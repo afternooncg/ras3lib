@@ -220,10 +220,22 @@ package com.wings.ui.manager
 		 * 
 		 */		
 		public function setToTop(disp:DisplayObject):void
-		{
-			if(disp && disp.parent)
-				disp.parent.addChild(disp);		
+		{			
+			if(disp && disp.parent && (disp.parent==_winCt))
+				_winCt.addChild(disp);		
 		}
+		
+		/**
+		 * 提升到第0级 
+		 * @param disp
+		 * 
+		 */		
+		public function setToBottom(disp:DisplayObject):void
+		{
+			if(disp && disp.parent && (disp.parent==_winCt))
+				_winCt.addChildAt(disp,0);		
+		}
+		
 		
 		
 		/**

@@ -63,6 +63,7 @@ package com.wings.ui.components
 		protected var _params:Object;		
 		protected var _uniqueid:uint = 0;
 		protected var _ruiHelper:RUICssHelper;
+		protected var _fnUpdateTip:Function;						//实时更新悬停的代理操作
 		
 		//--------------------------------------------------------------------------
 		//
@@ -197,14 +198,18 @@ package com.wings.ui.components
 		}
 		
 		
-		
 		/**
 		 *  
-		 * 每次over事件时更新,用于tooltip是单例共享情况,如果是非单例情况,不必实现
+		 * 每次over事件时更新,用于tooltip是默认单例共享情况,如果是非单例情况,不必实现
 		 */		
-		public function set updateEveryShow(fn:Function):void
+		public function set onShowTipCallBackFn(fn:Function):void
 		{
-			
+			_fnUpdateTip = fn;
+		}			
+		public function updateTipOnShow():void
+		{
+			if(_fnUpdateTip!=null)
+				_fnUpdateTip();
 		}
 		
 		
